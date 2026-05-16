@@ -32,6 +32,7 @@ export default function MainTabNavigator() {
         name="Home"
         component={HomeScreen}
         options={{
+          tabBarLabel: "Trang chủ",
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
@@ -39,6 +40,7 @@ export default function MainTabNavigator() {
         name="Search"
         component={SearchScreen}
         options={{
+          tabBarLabel: "Tìm kiếm",
           tabBarIcon: ({ color, size }) => <Search color={color} size={size} />,
         }}
       />
@@ -46,6 +48,7 @@ export default function MainTabNavigator() {
         name="Cart"
         component={CartScreen}
         options={{
+          tabBarLabel: "Giỏ hàng",
           tabBarIcon: ({ color, size }) => <ShoppingCart color={color} size={size} />,
           tabBarBadge: itemCount > 0 ? itemCount : undefined,
         }}
@@ -54,6 +57,7 @@ export default function MainTabNavigator() {
         name="Profile"
         component={ProfileScreen}
         options={{
+          tabBarLabel: "Cá nhân",
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />

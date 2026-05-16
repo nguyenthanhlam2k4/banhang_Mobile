@@ -13,6 +13,8 @@ import ProductDetailScreen from "../screens/ProductDetailScreen";
 import CategoryProductsScreen from "../screens/CategoryProductsScreen";
 import CheckoutScreen from "../screens/CheckoutScreen";
 import OrderHistoryScreen from "../screens/OrderHistoryScreen";
+import WishlistScreen from "../screens/WishlistScreen";
+import AddressScreen from "../screens/AddressScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +32,8 @@ export default function RootNavigator() {
           <Stack.Screen name="CategoryProducts" component={CategoryProductsScreen} />
           <Stack.Screen name="Checkout" component={CheckoutScreen} />
           <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} />
+          <Stack.Screen name="Wishlist" component={WishlistScreen} />
+          <Stack.Screen name="Address" component={AddressScreen} />
 
           {/* Admin Screens */}
           <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
