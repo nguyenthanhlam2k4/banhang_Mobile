@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,14 +8,36 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
+  TextInput,
+  ScrollView,
 } from "react-native";
-import { Trash2, Minus, Plus, ChevronRight, ShoppingBag } from "lucide-react-native";
+import { Trash2, Minus, Plus, ChevronRight, ShoppingBag, Ticket, Truck } from "lucide-react-native";
 import { useCartStore } from "../store/useCartStore";
 import { useNavigation } from "@react-navigation/native";
+import ProductCard from "../components/ProductCard";
+import apiClient from "../api/client";
+import { Product } from "../types";
 
 export default function CartScreen() {
   const { items, removeItem, updateQuantity, totalPrice, itemCount } = useCartStore();
   const navigation = useNavigation<any>();
+  const [promoCode, setPromoCode] = useState("");
+  const [recommendations, setRecommendations] = useState<Product[]>([]);
+
+  useEffect(() => {
+    if (items.length === 0) {
+      fetchRecommendations();
+    }
+  }, [items.length]);
+
+  const fetchRecommendations = async () => {
+    try {
+      const res = await apiClient.get("/products?limit=4&featured=true");
+      setRecommendations(Array.isArray(res.data.data) ? res.data.data : []);
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+    }
+  };
 
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.cartItem}>
@@ -35,14 +57,14 @@ export default function CartScreen() {
               style={styles.qtyBtn}
               onPress={() => updateQuantity(item._id, item.quantity - 1)}
             >
-              <Minus size={14} color="#000" />
+              <Minus size={14} color="#1C1C1E" />
             </TouchableOpacity>
             <Text style={styles.qtyText}>{item.quantity}</Text>
             <TouchableOpacity 
               style={styles.qtyBtn}
               onPress={() => updateQuantity(item._id, item.quantity + 1)}
             >
-              <Plus size={14} color="#000" />
+              <Plus size={14} color="#1C1C1E" />
             </TouchableOpacity>
           </View>
         </View>
@@ -52,16 +74,37 @@ export default function CartScreen() {
 
   if (items.length === 0) {
     return (
-      <SafeAreaView style={styles.emptyContainer}>
-        <ShoppingBag size={80} color="#C7C7CC" />
-        <Text style={styles.emptyTitle}>Your Cart is Empty</Text>
-        <Text style={styles.emptySubtitle}>Looks like you haven't added anything to your cart yet.</Text>
-        <TouchableOpacity 
-          style={styles.shopNowBtn}
-          onPress={() => navigation.navigate("Home")}
-        >
-          <Text style={styles.shopNowText}>Shop Now</Text>
-        </TouchableOpacity>
+      <SafeAreaView style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.emptyContainer}>
+            <View style={styles.emptyIconContainer}>
+              <ShoppingBag size={60} color="#007AFF" />
+            </View>
+            <Text style={styles.emptyTitle}>Your cart is empty</Text>
+            <Text style={styles.emptySubtitle}>Items you add to your cart will appear here.</Text>
+            <TouchableOpacity 
+              style={styles.shopNowBtn}
+              onPress={() => navigation.navigate("Home")}
+            >
+              <Text style={styles.shopNowText}>Continue Shopping</Text>
+            </TouchableOpacity>
+          </View>
+
+          {recommendations.length > 0 && (
+            <View style={styles.recommendationSection}>
+              <Text style={styles.recommendationTitle}>You Might Also Like</Text>
+              <View style={styles.recommendationGrid}>
+                {recommendations.map((product) => (
+                  <ProductCard
+                    key={product._id}
+                    product={product}
+                    onPress={() => navigation.navigate("ProductDetail", { productId: product._id })}
+                  />
+                ))}
+              </View>
+            </View>
+          )}
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -71,7 +114,7 @@ export default function CartScreen() {
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Cart</Text>
-        <Text style={styles.headerSubtitle}>{itemCount()} items</Text>
+        <Text style={styles.headerSubtitle}>{itemCount()} items in your cart</Text>
       </View>
 
       <FlatList
@@ -80,26 +123,59 @@ export default function CartScreen() {
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        ListFooterComponent={
+          <View style={styles.listFooter}>
+            {/* Promo Code */}
+            <View style={styles.promoSection}>
+              <View style={styles.promoInputContainer}>
+                <Ticket size={20} color="#8E8E93" style={{ marginRight: 10 }} />
+                <TextInput
+                  style={styles.promoInput}
+                  placeholder="Enter Promo Code"
+                  placeholderTextColor="#8E8E93"
+                  value={promoCode}
+                  onChangeText={setPromoCode}
+                />
+              </View>
+              <TouchableOpacity style={styles.promoBtn}>
+                <Text style={styles.promoBtnText}>Apply</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Delivery Info */}
+            <View style={styles.deliveryCard}>
+              <View style={styles.deliveryIcon}>
+                <Truck size={24} color="#007AFF" />
+              </View>
+              <View style={styles.deliveryTextContainer}>
+                <Text style={styles.deliveryTitle}>Free Delivery</Text>
+                <Text style={styles.deliverySubtitle}>Estimated: 2-3 Business Days</Text>
+              </View>
+            </View>
+          </View>
+        }
       />
 
       <View style={styles.footer}>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Subtotal</Text>
-          <Text style={styles.summaryValue}>${totalPrice().toFixed(2)}</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Shipping</Text>
-          <Text style={styles.summaryValue}>Free</Text>
-        </View>
-        <View style={[styles.summaryRow, styles.totalRow]}>
-          <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalValue}>${totalPrice().toFixed(2)}</Text>
+        <View style={styles.summaryContainer}>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Subtotal</Text>
+            <Text style={styles.summaryValue}>${totalPrice().toFixed(2)}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Shipping</Text>
+            <Text style={[styles.summaryValue, { color: "#34C759" }]}>FREE</Text>
+          </View>
+          <View style={[styles.summaryRow, styles.totalRow]}>
+            <Text style={styles.totalLabel}>Total Amount</Text>
+            <Text style={styles.totalValue}>${totalPrice().toFixed(2)}</Text>
+          </View>
         </View>
         <TouchableOpacity 
           style={styles.checkoutBtn}
           onPress={() => navigation.navigate("Checkout")}
         >
-          <Text style={styles.checkoutText}>Proceed to Checkout</Text>
+          <Text style={styles.checkoutText}>Checkout Now</Text>
           <ChevronRight size={20} color="#FFF" />
         </TouchableOpacity>
       </View>
@@ -110,43 +186,39 @@ export default function CartScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: "#FFFFFF",
   },
   header: {
     paddingHorizontal: 24,
-    paddingVertical: 20,
-    backgroundColor: "#FFF",
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F2F2F7",
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#1C1C1E",
   },
   headerSubtitle: {
     fontSize: 14,
     color: "#8E8E93",
-    marginTop: 4,
+    marginTop: 2,
   },
   listContent: {
     padding: 24,
   },
   cartItem: {
     flexDirection: "row",
-    backgroundColor: "#FFF",
+    backgroundColor: "#F8F9FA",
     borderRadius: 20,
     padding: 12,
     marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
   },
   itemImage: {
-    width: 90,
-    height: 90,
+    width: 85,
+    height: 85,
     borderRadius: 15,
-    backgroundColor: "#F2F2F7",
+    backgroundColor: "#E5E5EA",
   },
   itemDetails: {
     flex: 1,
@@ -160,7 +232,7 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: "#1C1C1E",
     flex: 1,
     marginRight: 8,
@@ -168,54 +240,114 @@ const styles = StyleSheet.create({
   itemBrand: {
     fontSize: 12,
     color: "#8E8E93",
-    marginTop: 2,
   },
   itemFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 8,
   },
   itemPrice: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#007AFF",
+    fontSize: 17,
+    fontWeight: "800",
+    color: "#1C1C1E",
   },
   quantityControl: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F2F2F7",
+    backgroundColor: "#FFFFFF",
     borderRadius: 10,
-    padding: 4,
+    padding: 2,
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
   },
   qtyBtn: {
-    width: 28,
-    height: 28,
+    width: 26,
+    height: 26,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFF",
-    borderRadius: 8,
   },
   qtyText: {
     fontSize: 14,
-    fontWeight: "bold",
-    marginHorizontal: 12,
+    fontWeight: "700",
+    marginHorizontal: 10,
+    color: "#1C1C1E",
+  },
+  listFooter: {
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  promoSection: {
+    flexDirection: "row",
+    marginBottom: 20,
+  },
+  promoInputContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F2F2F7",
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    marginRight: 12,
+  },
+  promoInput: {
+    flex: 1,
+    height: 50,
+    fontSize: 15,
+    color: "#1C1C1E",
+  },
+  promoBtn: {
+    backgroundColor: "#1C1C1E",
+    paddingHorizontal: 20,
+    borderRadius: 14,
+    justifyContent: "center",
+  },
+  promoBtnText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
+  deliveryCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F2F2F7",
+    padding: 16,
+    borderRadius: 18,
+  },
+  deliveryIcon: {
+    width: 44,
+    height: 44,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+  },
+  deliveryTextContainer: {
+    flex: 1,
+  },
+  deliveryTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#1C1C1E",
+  },
+  deliverySubtitle: {
+    fontSize: 13,
+    color: "#8E8E93",
+    marginTop: 2,
   },
   footer: {
-    backgroundColor: "#FFF",
+    backgroundColor: "#FFFFFF",
     padding: 24,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 10,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#F2F2F7",
+  },
+  summaryContainer: {
+    marginBottom: 20,
   },
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 10,
   },
   summaryLabel: {
     color: "#8E8E93",
@@ -223,69 +355,90 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     color: "#1C1C1E",
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "700",
   },
   totalRow: {
-    marginTop: 8,
-    marginBottom: 24,
-    paddingTop: 16,
+    marginTop: 10,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: "#F2F2F7",
   },
   totalLabel: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 17,
+    fontWeight: "800",
     color: "#1C1C1E",
   },
   totalValue: {
-    fontSize: 22,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: "900",
     color: "#007AFF",
   },
   checkoutBtn: {
     backgroundColor: "#007AFF",
-    paddingVertical: 18,
+    height: 60,
     borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
   checkoutText: {
-    color: "#FFF",
+    color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "700",
     marginRight: 8,
   },
   emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFF",
-    padding: 24,
+    justifyContent: "center",
+    padding: 40,
+    marginTop: 40,
+  },
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    backgroundColor: "#F2F2F7",
+    borderRadius: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 24,
   },
   emptyTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
     color: "#1C1C1E",
-    marginTop: 24,
   },
   emptySubtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: "#8E8E93",
     textAlign: "center",
-    marginTop: 12,
-    marginBottom: 32,
+    marginTop: 8,
+    marginBottom: 24,
   },
   shopNowBtn: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 40,
-    paddingVertical: 16,
-    borderRadius: 20,
+    backgroundColor: "#1C1C1E",
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 16,
   },
   shopNowText: {
-    color: "#FFF",
-    fontSize: 16,
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  recommendationSection: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
+  recommendationTitle: {
+    fontSize: 18,
     fontWeight: "bold",
+    color: "#1C1C1E",
+    marginBottom: 16,
+  },
+  recommendationGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
 });
