@@ -13,9 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "bundleIdentifier": "com.mobileappbanhang.app",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.mobileappbanhang.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -25,6 +27,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ced83e65-b88e-455a-a2a1-9597bbfb47c4"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ced83e65-b88e-455a-a2a1-9597bbfb47c4"
+      }
+    },
+    "owner": "thanhlam2004"
   }
 }
