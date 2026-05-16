@@ -25,14 +25,14 @@ const BANNERS = [
   {
     id: "1",
     image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop",
-    title: "Summer Collection",
-    subtitle: "Up to 50% Off",
+    title: "Bộ Sưu Tập Hè",
+    subtitle: "Giảm giá lên đến 50%",
   },
   {
     id: "2",
     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop",
-    title: "Tech Week",
-    subtitle: "New Gadgets Available",
+    title: "Tuần Lễ Công Nghệ",
+    subtitle: "Sản phẩm mới cực hot",
   },
 ];
 
@@ -61,7 +61,7 @@ export default function HomeScreen() {
       setFeaturedProducts(Array.isArray(featRes.data.data) ? featRes.data.data : []);
       setNewArrivals(Array.isArray(newRes.data.data) ? newRes.data.data : []);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Lỗi khi tải dữ liệu:", error);
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ export default function HomeScreen() {
         <Text style={styles.bannerSubtitle}>{item.subtitle}</Text>
         <Text style={styles.bannerTitle}>{item.title}</Text>
         <TouchableOpacity style={styles.bannerBtn}>
-          <Text style={styles.bannerBtnText}>Shop Now</Text>
+          <Text style={styles.bannerBtnText}>Mua Ngay</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -95,8 +95,8 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Good Morning,</Text>
-            <Text style={styles.headerTitle}>Alex Smith</Text>
+            <Text style={styles.greeting}>Chào buổi sáng,</Text>
+            <Text style={styles.headerTitle}>Lâm Nguyễn</Text>
           </View>
           <TouchableOpacity 
             style={styles.notificationBtn}
@@ -113,7 +113,7 @@ export default function HomeScreen() {
             <Search size={20} color="#8E8E93" />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search what you need..."
+              placeholder="Bạn muốn tìm gì hôm nay?"
               placeholderTextColor="#8E8E93"
               onFocus={() => navigation.navigate("Search")}
             />
@@ -153,9 +153,9 @@ export default function HomeScreen() {
         {/* Categories */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Explore Categories</Text>
+            <Text style={styles.sectionTitle}>Khám phá danh mục</Text>
             <TouchableOpacity style={styles.seeAllBtn}>
-              <Text style={styles.seeAllText}>See All</Text>
+              <Text style={styles.seeAllText}>Xem tất cả</Text>
               <ChevronRight size={16} color="#007AFF" />
             </TouchableOpacity>
           </View>
@@ -190,10 +190,10 @@ export default function HomeScreen() {
           <View style={styles.sectionHeader}>
             <View style={styles.titleWithIcon}>
               <Zap size={20} color="#FF9500" fill="#FF9500" />
-              <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>Featured For You</Text>
+              <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>Dành cho bạn</Text>
             </View>
             <TouchableOpacity>
-              <Text style={styles.seeAllText}>View All</Text>
+              <Text style={styles.seeAllText}>Xem hết</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.productsGrid}>
@@ -210,9 +210,9 @@ export default function HomeScreen() {
         {/* New Arrivals Section */}
         <View style={[styles.section, { marginBottom: 40 }]}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>New Arrivals</Text>
+            <Text style={styles.sectionTitle}>Sản phẩm mới</Text>
             <TouchableOpacity>
-              <Text style={styles.seeAllText}>See All</Text>
+              <Text style={styles.seeAllText}>Xem tất cả</Text>
             </TouchableOpacity>
           </View>
           <ScrollView 

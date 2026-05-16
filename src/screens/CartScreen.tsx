@@ -35,7 +35,7 @@ export default function CartScreen() {
       const res = await apiClient.get("/products?limit=4&featured=true");
       setRecommendations(Array.isArray(res.data.data) ? res.data.data : []);
     } catch (error) {
-      console.error("Error fetching recommendations:", error);
+      console.error("Lỗi khi tải gợi ý:", error);
     }
   };
 
@@ -51,7 +51,7 @@ export default function CartScreen() {
         </View>
         <Text style={styles.itemBrand}>{item.brand}</Text>
         <View style={styles.itemFooter}>
-          <Text style={styles.itemPrice}>${item.price}</Text>
+          <Text style={styles.itemPrice}>{item.price.toLocaleString('vi-VN')}đ</Text>
           <View style={styles.quantityControl}>
             <TouchableOpacity 
               style={styles.qtyBtn}
@@ -80,19 +80,19 @@ export default function CartScreen() {
             <View style={styles.emptyIconContainer}>
               <ShoppingBag size={60} color="#007AFF" />
             </View>
-            <Text style={styles.emptyTitle}>Your cart is empty</Text>
-            <Text style={styles.emptySubtitle}>Items you add to your cart will appear here.</Text>
+            <Text style={styles.emptyTitle}>Giỏ hàng đang trống</Text>
+            <Text style={styles.emptySubtitle}>Sản phẩm bạn thêm vào giỏ hàng sẽ xuất hiện ở đây.</Text>
             <TouchableOpacity 
               style={styles.shopNowBtn}
               onPress={() => navigation.navigate("Home")}
             >
-              <Text style={styles.shopNowText}>Continue Shopping</Text>
+              <Text style={styles.shopNowText}>Tiếp tục mua sắm</Text>
             </TouchableOpacity>
           </View>
 
           {recommendations.length > 0 && (
             <View style={styles.recommendationSection}>
-              <Text style={styles.recommendationTitle}>You Might Also Like</Text>
+              <Text style={styles.recommendationTitle}>Có thể bạn sẽ thích</Text>
               <View style={styles.recommendationGrid}>
                 {recommendations.map((product) => (
                   <ProductCard
@@ -113,8 +113,8 @@ export default function CartScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Cart</Text>
-        <Text style={styles.headerSubtitle}>{itemCount()} items in your cart</Text>
+        <Text style={styles.headerTitle}>Giỏ hàng của tôi</Text>
+        <Text style={styles.headerSubtitle}>Có {itemCount()} sản phẩm trong giỏ</Text>
       </View>
 
       <FlatList
@@ -131,14 +131,14 @@ export default function CartScreen() {
                 <Ticket size={20} color="#8E8E93" style={{ marginRight: 10 }} />
                 <TextInput
                   style={styles.promoInput}
-                  placeholder="Enter Promo Code"
+                  placeholder="Nhập mã giảm giá"
                   placeholderTextColor="#8E8E93"
                   value={promoCode}
                   onChangeText={setPromoCode}
                 />
               </View>
               <TouchableOpacity style={styles.promoBtn}>
-                <Text style={styles.promoBtnText}>Apply</Text>
+                <Text style={styles.promoBtnText}>Áp dụng</Text>
               </TouchableOpacity>
             </View>
 
@@ -148,8 +148,8 @@ export default function CartScreen() {
                 <Truck size={24} color="#007AFF" />
               </View>
               <View style={styles.deliveryTextContainer}>
-                <Text style={styles.deliveryTitle}>Free Delivery</Text>
-                <Text style={styles.deliverySubtitle}>Estimated: 2-3 Business Days</Text>
+                <Text style={styles.deliveryTitle}>Giao hàng miễn phí</Text>
+                <Text style={styles.deliverySubtitle}>Dự kiến: 2-3 ngày làm việc</Text>
               </View>
             </View>
           </View>
@@ -159,23 +159,23 @@ export default function CartScreen() {
       <View style={styles.footer}>
         <View style={styles.summaryContainer}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>${totalPrice().toFixed(2)}</Text>
+            <Text style={styles.summaryLabel}>Tạm tính</Text>
+            <Text style={styles.summaryValue}>{totalPrice().toLocaleString('vi-VN')}đ</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Shipping</Text>
-            <Text style={[styles.summaryValue, { color: "#34C759" }]}>FREE</Text>
+            <Text style={styles.summaryLabel}>Phí vận chuyển</Text>
+            <Text style={[styles.summaryValue, { color: "#34C759" }]}>MIỄN PHÍ</Text>
           </View>
           <View style={[styles.summaryRow, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total Amount</Text>
-            <Text style={styles.totalValue}>${totalPrice().toFixed(2)}</Text>
+            <Text style={styles.totalLabel}>Tổng cộng</Text>
+            <Text style={styles.totalValue}>{totalPrice().toLocaleString('vi-VN')}đ</Text>
           </View>
         </View>
         <TouchableOpacity 
           style={styles.checkoutBtn}
           onPress={() => navigation.navigate("Checkout")}
         >
-          <Text style={styles.checkoutText}>Checkout Now</Text>
+          <Text style={styles.checkoutText}>Thanh toán ngay</Text>
           <ChevronRight size={20} color="#FFF" />
         </TouchableOpacity>
       </View>
